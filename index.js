@@ -1,6 +1,10 @@
+
 const searchBar = document.getElementById("search-bar")
 const searchResults = document.getElementById("result-grid")
 const searchButton = document.getElementById("search-button")
+let movieArray = []
+let savedMovieArray = []
+let watchlistArray = JSON.parse(localStorage.getItem("watchlistKey")) || []
 
 
 // https://www.omdbapi.com/?s=thor&apikey=97393ea0
@@ -13,51 +17,72 @@ function fetchResults(){
     .then(resp => resp.json())
     .then(data => 
         movieId(data.Search)
-        // displayMovieList(data.Search)
     )
-}
+};
 
 function movieId(movies){
     for(let i=0; i<movies.length; i++){
         let id = movies[i].imdbID
         fetch(`https://www.omdbapi.com/?i=${id}&apikey=97393ea0`)
         .then(resp => resp.json())
-        .then(data => displayMovieList(data))
-    }
-}
-
-function displayMovieList(data){
-    // for(let i=0; i < data.length; i++){
-    //     if(data[i].Poster != "N/A")
-    //         moviePoster = data[i].Poster;
-    //     else 
-    //         moviePoster = "image_not_found.png";
-
-        searchResults.innerHTML += 
-        ` 
-            <div class = "movie-poster">
-                <img src = "${data.Poster}" alt = "movie poster">
-        </div>
-            <div class = "movie-info">
-                <h3 class = "movie-title">${data.Title}</h3><p>⭐${data.Ratings[0].Value}</p>
-                <ul class = "movie-misc-info">
-                    <li class = "year">Year: ${data.Year}</li>
-                    <li class = "rated">Rated: ${data.Rated}</li>
-                    <li class="genre">Genre:${data.Genre}</li>
-                    <li class = "duration">${data.Runtime}</li>
-                    <div id="wish-btn"><i class="fa-solid fa-circle-plus"></i></div>
-                </ul>
-                <p class = "plot"><b>Plot:</b>${data.Plot}</p>
-                <p> ${data.imdbID}
-        </div> 
-    <div class="row-border"></div>
-    `
-    
-    const wishBtn = document.getElementById("wish-btn");
-    wishBtn.addEventListener('click', addToWishlist);
-
-    function addToWishlist(){
-
+        .then(data => {
+            const movie = {
+                poster: data.Poster,
+                title: data.Title,
+                rating: data.Ratings[0].Value,
+                runtime: data.Runtime,
+                genre: data.Genre,
+                plot: data.Plot,
+                id: data.imdbID
+            }
+            movieArray.push(movie)
+            localStorage.setItem("movies", JSON.stringify(movieArray))
+            displayMovieList(data)
+        })
     }
 };
 
+function displayMovieList(movie){
+        searchResults.innerHTML += 
+        ` 
+            <div class = "movie-poster">
+                <img src = "${movie.Poster}" alt = "movie poster">
+        </div>
+            <div class = "movie-info">
+                <h3 class = "movie-title">${movie.Title}</h3><p>⭐${movie.Ratings[0].Value}</p>
+                <ul class = "movie-misc-info">
+                    <li class = "year">Year: ${movie.Year}</li>
+                    <li class = "rated">Rated: ${movie.Rated}</li>
+                    <li class="genre">Genre:${movie.Genre}</li>
+                    <li class = "duration">${movie.Runtime}</li>
+                    <div id="${movie.imdbID}" onclick="addToLocal(${movie.imdbID})">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    </div>
+                </ul>
+                <p class = "plot"><b>Plot:</b>${movie.Plot}</p>
+                <p> ${movie.imdbID}
+        </div> 
+    <div class="row-border"></div>
+    `
+};
+
+function addToLocal(id) {
+
+    console.log("hello")
+
+    // if(!localArr.includes(id)) {
+
+    //     localArr.push(id)
+    //     localStorage.setItem("films", JSON.stringify(localArr))
+
+    //     const currentIdWatchlist = document.getElementById(`${id}-watchlist`)
+
+    //     currentIdWatchlist.innerHTML = `
+    //         <img src="./images/circle-check-solid.svg" alt="#" class="check-icon">
+    //         <p>Added</p>
+    //     `
+
+    //     currentIdWatchlist.classList.remove("watchlist-wrapper")
+    //     currentIdWatchlist.classList.add("added-wrapper")
+
+    }
